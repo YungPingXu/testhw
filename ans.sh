@@ -111,13 +111,13 @@ LockorUnlock(){
 		else
 			pw unlock "$username"
 		fi
-		LockSucceed "$username"
+		LockorUnlockSucceed "$username" "$lockoption"
 	elif [ $result -eq 1 ] ; then
 		UserVagrant "$username" "$lockoption"
 	fi
 }
 
-LockSucceed(){
+LockorUnlockSucceed(){
 	username=$1
 	lockoption=$2
 	if [ "$lockoption" = "LOCK IT" ] ; then
