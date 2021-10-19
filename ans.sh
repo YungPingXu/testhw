@@ -64,10 +64,15 @@ Exit(){
 
 UserVagrant(){
 	username=$1
-	
+	contain=$(grep "$username" /etc/master.passwd | grep "*LOCKED*")
+	if [ "$contain" != "" ] ; then
+		option1="UNLOCK IT"
+	else
+		option1="LOCK IT"
+	fi
     choice=$(dialog --cancel-label "EXIT" \
     --menu "User vagrant" 15 40 10\
-    1 "LOCK IT" \
+    1 "$option1" \
     2 "GROUP INFO" \
     3 "PORT INFO" \
     4 "LOGIN HISTORY" \
@@ -76,7 +81,7 @@ UserVagrant(){
     
     result=$?
     if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
-        UserVagrantSelect $choice "$username"
+        UserVagrantSelect $choice "$username" "$option1"
     elif [ $result -eq 1 ] ; then
         UserList
     fi
@@ -85,13 +90,43 @@ UserVagrant(){
 UserVagrantSelect(){
 	choice=$1
 	username=$2
+	lockoption=$3
 	clear
     case $choice in
-        1) echo option1
+        1) LockorUnlock "$username" "$lockoption"
         ;;
         2) GroupInfo "$username"
         ;;
     esac
+}
+
+LockorUnlock(){
+	username=$1
+	lockoption=$2
+    dialog --title "$lockoption" --yesno "Are you sure you want to do this?" 15 40
+    result=$?
+	if [ $result -eq 0 ]; then
+		if [ "$lockoption" = "LOCK IT" ] ; then
+			pw lock "$username"
+		else
+			pw unlock "$username"
+		fi
+		LockSucceed "$username"
+	elif [ $result -eq 1 ] ; then
+		UserVagrant "$username" "$lockoption"
+	fi
+}
+
+LockSucceed(){
+	username=$1
+	lockoption=$2
+	if [ "$lockoption" = "LOCK IT" ] ; then
+		message="LOCK SUCCEED!"
+	else
+		message="UNLOCK SUCCEED!"
+	fi
+    dialog --title "$lockoption" --msgbox "$message" 15 40
+    UserVagrant "$username"
 }
 
 GroupInfo(){
@@ -144,16 +179,6 @@ PostAnnouncement(){
 TypeMessage(){
     dialog --title "POST ANNOUNCEMENT" \
     --inputbox "Enter your messages:" 10 40 
-}
-
-LockIt(){
-    dialog --title "LOCK IT" \
-    --yesno "Are you sure you want to do this?" 15 40
-}
-
-LockSucceed(){
-    dialog --title "LOCK IT" \
-    --msgbox "LOCK SUCCEED!" 15 40
 }
 
 PortInfo(){
