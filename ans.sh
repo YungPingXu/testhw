@@ -133,9 +133,9 @@ GroupExport(){
     exec 3>&-
 	if [ $result -eq 0 ]; then
 		echo "$content" > "$input"
-		GroupInfo
+		GroupInfo $username
 	elif [ $result -eq 1 ] ; then
-		GroupInfo
+		GroupInfo $username
 	fi
 }
 
