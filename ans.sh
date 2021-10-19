@@ -27,17 +27,17 @@ MainSelect(){
 }
 
 UserList(){
-	users=`
-		awk -F':' '{if(index($NF, "nologin") == 0){printf $1 " "}}' /etc/passwd | \
-		awk -v FS="\n" '{split($1, arr, " ")}END{for(i=1;i<=length(arr);i++){print 1000+i "," arr[i]}}'
+	allUsers=`
+		cat /etc/passwd | grep ":" | grep -v "#" | grep -v "nologin" | \
+		awk -F":" '{print 1000+NR "," $1}'
 	`
 	onlineUsers=`who | awk -F" " '{print $1}'`
 	para=$(
-		for str in $users
+		for str in $allUsers
 		do
 			echo "$str" | awk -F"," '{printf $1 " " $2}'
 			user=`echo "$str" | awk -F"," '{print $2}'`
-			contain=$(echo $onlineUsers | grep "$user")
+			contain=$(echo "$onlineUsers" | grep "$user")
 			if [ "$contain" != "" ] ; then
 				echo "[*]"
 			else
@@ -48,17 +48,10 @@ UserList(){
     choice=$(dialog --cancel-label "EXIT" --ok-label "SELECT" \
     --menu "User Info Panel" 15 40 10 $para \
     2>&1 > /dev/tty)
-    choice=$(($choice-1000))
-    
-    tmp=`
-    	cat /etc/passwd | grep ":" | grep -v "#" | grep -v "nologin" | \
-		awk -F':' '{printf $1 " "}'
-	`
-	username=$(echo "$tmp" | awk -F"\n" '{split($0,arr," ");print arr['$choice']}')
-
 	result=$?
+	username=$(echo "$allUsers" | grep "$choice" | awk -F"," '{print $2}')
     if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
-        UserVagrant $username
+        UserVagrant "$username"
     elif [ $result -eq 1 ] ; then
         Main
     fi
@@ -83,7 +76,7 @@ UserVagrant(){
     
     result=$?
     if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
-        UserVagrantSelect $choice $username
+        UserVagrantSelect $choice "$username"
     elif [ $result -eq 1 ] ; then
         UserList
     fi
@@ -96,7 +89,7 @@ UserVagrantSelect(){
     case $choice in
         1) echo option1
         ;;
-        2) GroupInfo $username
+        2) GroupInfo "$username"
         ;;
     esac
 }
@@ -118,9 +111,9 @@ GroupInfo(){
     --yesno "$content" 15 40
 	result=$?
 	if [ $result -eq 0 ]; then
-		UserVagrant
+		UserVagrant "$username"
 	elif [ $result -eq 1 ] ; then
-		GroupExport $username "$content"
+		GroupExport "$username" "$content"
 	fi
 }
 
@@ -133,9 +126,9 @@ GroupExport(){
     exec 3>&-
 	if [ $result -eq 0 ]; then
 		echo "$content" > "$input"
-		GroupInfo $username
+		GroupInfo "$username"
 	elif [ $result -eq 1 ] ; then
-		GroupInfo $username
+		GroupInfo "$username"
 	fi
 }
 
