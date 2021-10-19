@@ -97,6 +97,7 @@ UserVagrantSelect(){
 GroupInfo(){
 	username=$1
 	content=`
+		echo "GROUP_ID GROUP_NAME"
 		id $username |
 		awk '{
 			split(substr($NF,8),arr,","); \
