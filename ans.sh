@@ -124,13 +124,12 @@ SudoLog(){
 	content=$(
 		echo "$authlog" | while read -r line;
 		do
-			echo $line
 			myDate=$(echo "$line" | awk '{print $(NF-2) " " $(NF-1) " " $(NF)}')
 			currentTime=$(date "+%s")
 			dateTime=$(date -j -f "%b %d %T" "$myDate" "+%s")
 			timeDiff=`expr $currentTime - $dateTime`
 			dayDiff=`expr $timeDiff / 86400`
-			if [ $dayDiff -lt 30 ] ; then
+			if [ $dayDiff -lt 3 ] ; then
 				echo $line
 			fi
 		done
