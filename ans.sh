@@ -108,11 +108,9 @@ UserPanelSelect(){
 
 PortInfo(){
 	username=$1
-	content=$(
-		sockstat -4 | grep "$username" | awk '{print $3 " " $5 "_" $6}'
-	)
+	para=$(sockstat -4 | grep "$username" | awk '{print $3 " " $5 "_" $6}')
     choice=$(dialog --title "Port INFO(PID and Port)" \
-    --menu "Port INFO(PID and Port)" 10 40 10 "$content" \
+    --menu "" 10 40 10 $para \
     2>&1 > /dev/tty)
     result=$?
 
