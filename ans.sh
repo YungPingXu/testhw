@@ -128,7 +128,7 @@ ProcessState(){
 		echo "USER $username"
 		ps aux | awk '{ \
 			if($1 == "'$username'" && $2 == "'$PID'"){ \
-				print "PID" $2 "\nSTAT" $8 "\n%CPU" $3 "\n%MEM" $4 "\nCOMMAND" $NF
+				print "PID " $2 "\nSTAT " $8 "\n%CPU " $3 "\n%MEM " $4 "\nCOMMAND " $NF
 			}
 		}'
 	)
