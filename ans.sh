@@ -126,8 +126,11 @@ ProcessState(){
 	PID=$2
 	content=$(
 		echo "USER $username"
-		ps aux | grep -E "$username|$PID" | \
-		awk '{print "PID" $2 "\nSTAT" $8 "\n%CPU" $3 "\n%MEM" $4 "\nCOMMAND" $NF}'
+		ps aux | awk '{ \
+			if($1 == "'$username'" && $2 == "'$PID'"){ \
+				print "PID" $2 "\nSTAT" $8 "\n%CPU" $3 "\n%MEM" $4 "\nCOMMAND" $NF
+			}
+		}'
 	)
     dialog --title "PROCESS STATE: $PID" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
     result=$?
