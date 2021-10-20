@@ -125,14 +125,16 @@ SudoLog(){
 		echo "$authlog" | while read -r line;
 		do
 			echo $line
-			#date=$(echo "$line" | awk '{print $(NF-2) " " $(NF-1) " " $(NF)}')
-			#daydiff=`datediff now "$date"`
-			#if [ $daydiff -lt 30 ] ; then
-			#	echo $line
-			#fi
+			myDate=$(echo "$line" | awk '{print $(NF-2) " " $(NF-1) " " $(NF)}')
+			currentTime=$(date "+%s")
+			dateTime=$(date -j -f "%b %d %T" "$myDate" "+%s")
+			dayDiff=$(($currentTime - $dateTime) / 86400))
+			if [ $dayDiff -lt 30 ] ; then
+				echo $line
+			fi
 		done
 	)
-    dialog --title "SUDOLOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 100
+    dialog --title "SUDO LOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 100
     result=$?
 	if [ $result -eq 0 ]; then
 		UserVagrant "$username"
