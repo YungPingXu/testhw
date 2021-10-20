@@ -51,7 +51,7 @@ UserList(){
 	result=$?
 	username=$(echo "$allUsers" | grep "$choice" | awk -F"," '{print $2}')
     if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
-        UserVagrant "$username"
+        UserPanel "$username"
     elif [ $result -eq 1 ] ; then
         Main
     fi
@@ -62,7 +62,7 @@ Exit(){
     exit
 }
 
-UserVagrant(){
+UserPanel(){
 	username=$1
 	contain=$(grep "$username" /etc/master.passwd | grep "*LOCKED*")
 	if [ "$contain" != "" ] ; then
@@ -71,7 +71,7 @@ UserVagrant(){
 		option1="LOCK IT"
 	fi
     choice=$(dialog --cancel-label "EXIT" \
-    --menu "User vagrant" 15 40 10\
+    --menu "User $username" 15 40 10\
     1 "$option1" \
     2 "GROUP INFO" \
     3 "PORT INFO" \
@@ -81,13 +81,13 @@ UserVagrant(){
     
     result=$?
     if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
-        UserVagrantSelect $choice "$username" "$option1"
+        UserPanelSelect $choice "$username" "$option1"
     elif [ $result -eq 1 ] ; then
         UserList
     fi
 }
 
-UserVagrantSelect(){
+UserPanelSelect(){
 	choice=$1
 	username=$2
 	lockoption=$3
@@ -97,11 +97,30 @@ UserVagrantSelect(){
         ;;
         2) GroupInfo "$username"
         ;;
+        3) PortInfo "$username"
+        ;;
         4) LoginHistory "$username"
         ;;
         5) SudoLog "$username"
         ;;
     esac
+}
+
+PortInfo(){
+	username=$1
+	content=$(
+		sockstat -4 | grep "$username" | awk '{print $3 " " $5 "_" $6}'
+	)
+    choice=$(dialog --title "Port INFO(PID and Port)" \
+    --menu "" 10 40 10 $content \
+    2>&1 > /dev/tty)
+    result=$?
+
+    if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
+        UserPanel "$username"
+    elif [ $result -eq 1 ] ; then
+        Main
+    fi
 }
 
 LoginHistory(){
@@ -115,7 +134,7 @@ LoginHistory(){
     dialog --title "LOGIN HISTORY" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
     result=$?
 	if [ $result -eq 0 ]; then
-		UserVagrant "$username"
+		UserPanel "$username"
 	elif [ $result -eq 1 ] ; then
 		LoginHistoryExport "$username" "$content"
 	fi
@@ -165,7 +184,7 @@ SudoLog(){
     dialog --title "SUDO LOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 100
     result=$?
 	if [ $result -eq 0 ]; then
-		UserVagrant "$username"
+		UserPanel "$username"
 	elif [ $result -eq 1 ] ; then
 		SudoExport "$username" "$content"
 	fi
@@ -199,7 +218,7 @@ LockorUnlock(){
 		fi
 		LockorUnlockSucceed "$username" "$lockoption"
 	elif [ $result -eq 1 ] ; then
-		UserVagrant "$username" "$lockoption"
+		UserPanel "$username" "$lockoption"
 	fi
 }
 
@@ -212,7 +231,7 @@ LockorUnlockSucceed(){
 		message="UNLOCK SUCCEED!"
 	fi
     dialog --title "$lockoption" --msgbox "$message" 15 40
-    UserVagrant "$username"
+    UserPanel "$username"
 }
 
 GroupInfo(){
@@ -231,7 +250,7 @@ GroupInfo(){
     dialog --title "GROUP" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
 	result=$?
 	if [ $result -eq 0 ]; then
-		UserVagrant "$username"
+		UserPanel "$username"
 	elif [ $result -eq 1 ] ; then
 		GroupExport "$username" "$content"
 	fi
@@ -262,13 +281,6 @@ PostAnnouncement(){
 
 TypeMessage(){
     dialog --title "POST ANNOUNCEMENT" --inputbox "Enter your messages:" 10 40 
-}
-
-PortInfo(){
-    dialog --title "Port INFO(PID and Port)" \
-    --menu "" 10 40 2 \
-    134 "tcp1" \
-    222 "tcp2"
 }
 
 ProcessState(){
