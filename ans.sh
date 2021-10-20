@@ -128,7 +128,8 @@ SudoLog(){
 			myDate=$(echo "$line" | awk '{print $(NF-2) " " $(NF-1) " " $(NF)}')
 			currentTime=$(date "+%s")
 			dateTime=$(date -j -f "%b %d %T" "$myDate" "+%s")
-			dayDiff=$(($currentTime - $dateTime) / 86400))
+			timeDiff=`expr $currentTime - $dateTime`
+			dayDiff=`expr $timeDiff / 86400`
 			if [ $dayDiff -lt 30 ] ; then
 				echo $line
 			fi
