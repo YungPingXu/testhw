@@ -232,7 +232,8 @@ SudoExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		echo "$content" > $input
+		echo $input
+		#echo "$content" > $input
 		SudoLog "$username"
 	elif [ $result -eq 1 ] ; then
 		SudoLog "$username"
