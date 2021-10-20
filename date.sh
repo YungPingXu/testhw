@@ -7,9 +7,4 @@
 #}
 
 #datediff now "$date"
-datediff(){
-   d1=$(date)
-   d2=$(date -j -v-30d)
-   echo $(( (d1 - d2) / 86400 ))
-}
-datediff
+date -j -f "%a %b %d %T %Y" "Wed Apr 22 17:43:30 2021" "+%s"
