@@ -7,4 +7,5 @@
 #}
 
 #datediff now "$date"
-date -j -f "%b %d %T" "Aug 21 17:20:16" "+%s"
+date -j -f "%b %d %T" "Oct 20 11:36:00" "+%s"
+date "+%s"
