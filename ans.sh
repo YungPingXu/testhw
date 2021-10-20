@@ -111,11 +111,11 @@ datediff(){
 SudoLog(){
 	username=$1
 	authlog=$(
-		cat /var/log/auth.log | grep -E "sudo|COMMAND=|$username" | \
+		cat /var/log/auth.log | grep -E "sudo|COMMAND=" | \
 		awk -F" : |;" '{for(i=1;i<NF;i++) printf $i ";"; print $NF;}' | \
 		awk -F";" '{print $1 " " $NF;}' | \
 		awk -F"COMMAND=" '{print $1 " " $2}' | \
-		awk '{
+		awk '{if($6=='$username') \
 			printf $6 " used sudo to do `"; \
 			for(i=7;i<NF;i++) printf $i " "; \
 			print $NF "` on " $1 " " $2 " " $3
@@ -124,11 +124,12 @@ SudoLog(){
 	content=$(
 		echo "$authlog" | while read -r line;
 		do
-			date=$(echo "$line" | awk '{print $(NF-2) " " $(NF-1) " " $(NF)}')
-			daydiff=`datediff now "$date"`
-			if [ $daydiff -lt 30 ] ; then
-				echo $line
-			fi
+			echo $line
+			#date=$(echo "$line" | awk '{print $(NF-2) " " $(NF-1) " " $(NF)}')
+			#daydiff=`datediff now "$date"`
+			#if [ $daydiff -lt 30 ] ; then
+			#	echo $line
+			#fi
 		done
 	)
     dialog --title "SUDOLOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
