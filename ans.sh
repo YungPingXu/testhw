@@ -97,15 +97,40 @@ UserVagrantSelect(){
         ;;
         2) GroupInfo "$username"
         ;;
+        4) LoginHistory "$username"
+        ;;
         5) SudoLog "$username"
         ;;
     esac
 }
 
-datediff(){
-    d1=$(date -d "$1" +%s)
-    d2=$(date -d "$2" +%s)
-    echo $(( (d1 - d2) / 86400 ))
+LoginHistory(){
+	username=$1
+	content=$(
+		last "$username" | grep "." | awk '{print $1 " " $3}'
+	)
+    dialog --title "LOGIN HISTORY" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
+    result=$?
+	if [ $result -eq 0 ]; then
+		UserVagrant "$username"
+	elif [ $result -eq 1 ] ; then
+		LoginHistoryExport "$username" "$content"
+	fi
+}
+
+LoginHistoryExport(){
+	username=$1
+	content=$2
+	exec 3>&1
+    input=$(dialog --title "Export to file" --inputbox "Enter the path:" 10 40 2>&1 1>&3)
+    result=$?
+    exec 3>&-
+	if [ $result -eq 0 ]; then
+		echo "$content" > "$input"
+		LoginHistory "$username"
+	elif [ $result -eq 1 ] ; then
+		LoginHistory "$username"
+	fi
 }
 
 SudoLog(){
@@ -129,7 +154,7 @@ SudoLog(){
 			dateTime=$(date -j -f "%b %d %T" "$myDate" "+%s")
 			timeDiff=`expr $currentTime - $dateTime`
 			dayDiff=`expr $timeDiff / 86400`
-			if [ $dayDiff -lt 3 ] ; then
+			if [ $dayDiff -lt 15 ] ; then
 				echo $line
 			fi
 		done
@@ -241,10 +266,6 @@ PortInfo(){
     --menu "" 10 40 2 \
     134 "tcp1" \
     222 "tcp2"
-}
-
-LoginHistory(){
-    dialog --title "LOGIN HISTORY" --yes-label "OK" --no-label "EXPORT" --yesno "content" 15 40
 }
 
 ProcessState(){
