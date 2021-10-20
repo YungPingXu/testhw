@@ -150,7 +150,7 @@ PSExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		echo "$content" > "$input"
+		echo "$content" > $input
 		ProcessState "$username" "$PID"
 	elif [ $result -eq 1 ] ; then
 		ProcessState "$username" "$PID"
@@ -182,7 +182,7 @@ LoginHistoryExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		echo "$content" > "$input"
+		echo "$content" > $input
 		LoginHistory "$username"
 	elif [ $result -eq 1 ] ; then
 		LoginHistory "$username"
@@ -232,7 +232,7 @@ SudoExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		echo "$content" > "$input"
+		echo "$content" > $input
 		SudoLog "$username"
 	elif [ $result -eq 1 ] ; then
 		SudoLog "$username"
@@ -298,7 +298,7 @@ GroupExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		echo "$content" > "$input"
+		echo "$content" > $input
 		GroupInfo "$username"
 	elif [ $result -eq 1 ] ; then
 		GroupInfo "$username"
