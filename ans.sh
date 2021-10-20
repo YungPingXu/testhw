@@ -115,11 +115,11 @@ SudoLog(){
 		awk -F" : |;" '{for(i=1;i<NF;i++) printf $i ";"; print $NF;}' | \
 		awk -F";" '{print $1 " " $NF;}' | \
 		awk -F"COMMAND=" '{print $1 " " $2}' | \
-		awk '{if($6=='$username') \
+		awk '{if($6=="'$username'"){ \
 			printf $6 " used sudo to do `"; \
 			for(i=7;i<NF;i++) printf $i " "; \
 			print $NF "` on " $1 " " $2 " " $3
-		}'
+		}}'
 	)
 	content=$(
 		echo "$authlog" | while read -r line;
@@ -132,7 +132,7 @@ SudoLog(){
 			#fi
 		done
 	)
-    dialog --title "SUDOLOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
+    dialog --title "SUDOLOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 100
     result=$?
 	if [ $result -eq 0 ]; then
 		UserVagrant "$username"
