@@ -97,7 +97,62 @@ UserVagrantSelect(){
         ;;
         2) GroupInfo "$username"
         ;;
+        5) SudoLog "$username"
+        ;;
     esac
+}
+
+datediff(){
+    d1=$(date -d "$1" +%s)
+    d2=$(date -d "$2" +%s)
+    echo $(( (d1 - d2) / 86400 ))
+}
+
+SudoLog(){
+	username=$1
+	authlog=$(
+		cat /var/log/auth.log | grep -E "sudo|COMMAND=|$username" | \
+		awk -F" : |;" '{for(i=1;i<NF;i++) printf $i ";"; print $NF;}' | \
+		awk -F";" '{print $1 " " $NF;}' | \
+		awk -F"COMMAND=" '{print $1 " " $2}' | \
+		awk '{
+			printf $6 " used sudo to do `"; \
+			for(i=7;i<NF;i++) printf $i " "; \
+			print $NF "` on " $1 " " $2 " " $3
+		}'
+	)
+	content=$(
+		echo "$authlog" | while read -r line;
+		do
+			date=$(echo "$line" | awk '{print $(NF-2) " " $(NF-1) " " $(NF)}')
+			daydiff=`datediff now "$date"`
+			if [ $daydiff -lt 30 ] ; then
+				echo $line
+			fi
+		done
+	)
+    dialog --title "SUDOLOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
+    result=$?
+	if [ $result -eq 0 ]; then
+		UserVagrant "$username"
+	elif [ $result -eq 1 ] ; then
+		SudoExport "$username" "$content"
+	fi
+}
+
+SudoExport(){
+	username=$1
+	content=$2
+	exec 3>&1
+    input=$(dialog --title "Export to file" --inputbox "Enter the path:" 10 40 2>&1 1>&3)
+    result=$?
+    exec 3>&-
+	if [ $result -eq 0 ]; then
+		echo "$content" > "$input"
+		SudoLog "$username"
+	elif [ $result -eq 1 ] ; then
+		SudoLog "$username"
+	fi
 }
 
 LockorUnlock(){
@@ -142,9 +197,7 @@ GroupInfo(){
 		}' |
 		awk -F"(" '{print $1 " " $2}'
 	`
-    dialog --title "GROUP" \
-    --yes-label "OK" --no-label "EXPORT" \
-    --yesno "$content" 15 40
+    dialog --title "GROUP" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
 	result=$?
 	if [ $result -eq 0 ]; then
 		UserVagrant "$username"
@@ -177,8 +230,7 @@ PostAnnouncement(){
 }
 
 TypeMessage(){
-    dialog --title "POST ANNOUNCEMENT" \
-    --inputbox "Enter your messages:" 10 40 
+    dialog --title "POST ANNOUNCEMENT" --inputbox "Enter your messages:" 10 40 
 }
 
 PortInfo(){
@@ -189,21 +241,11 @@ PortInfo(){
 }
 
 LoginHistory(){
-    dialog --title "LOGIN HISTORY" \
-    --yes-label "OK" --no-label "EXPORT" \
-    --yesno "content" 15 40
-}
-
-SudoLog(){
-    dialog --title "SUDOLOG" \
-    --yes-label "OK" --no-label "EXPORT" \
-    --yesno "content" 15 40
+    dialog --title "LOGIN HISTORY" --yes-label "OK" --no-label "EXPORT" --yesno "content" 15 40
 }
 
 ProcessState(){
-    dialog --title "PROCESS STATE: 2409" \
-    --yes-label "OK" --no-label "EXPORT" \
-    --yesno "content" 15 40
+    dialog --title "PROCESS STATE: 2409" --yes-label "OK" --no-label "EXPORT" --yesno "content" 15 40
 }
 
 Main
