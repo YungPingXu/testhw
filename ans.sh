@@ -115,10 +115,43 @@ PortInfo(){
     result=$?
 
     if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
-        UserPanel "$username"
+        ProcessState "$username" "$choice"
     elif [ $result -eq 1 ] ; then
         UserPanel "$username"
     fi
+}
+
+ProcessState(){
+	username=$1
+	PID=$2
+	content=$(
+		echo "USER $username"
+		ps aux | grep -E "$username|$PID" | \
+		awk '{print "PID" $2 "\nSTAT" $8 "\n%CPU" $3 "\n%MEM" $4 "\nCOMMAND" $NF}'
+	)
+    dialog --title "PROCESS STATE: $PID" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
+    result=$?
+	if [ $result -eq 0 ]; then
+		PortInfo "$username"
+	elif [ $result -eq 1 ] ; then
+		PSExport "$username" "$content" "$PID"
+	fi
+}
+
+PSExport(){
+	username=$1
+	content=$2
+	PID=$3
+	exec 3>&1
+    input=$(dialog --title "Export to file" --inputbox "Enter the path:" 10 40 2>&1 1>&3)
+    result=$?
+    exec 3>&-
+	if [ $result -eq 0 ]; then
+		echo "$content" > "$input"
+		ProcessState "$username" "$PID"
+	elif [ $result -eq 1 ] ; then
+		ProcessState "$username" "$PID"
+	fi
 }
 
 LoginHistory(){
@@ -279,10 +312,6 @@ PostAnnouncement(){
 
 TypeMessage(){
     dialog --title "POST ANNOUNCEMENT" --inputbox "Enter your messages:" 10 40 
-}
-
-ProcessState(){
-    dialog --title "PROCESS STATE: 2409" --yes-label "OK" --no-label "EXPORT" --yesno "content" 15 40
 }
 
 Main
