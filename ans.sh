@@ -112,14 +112,14 @@ PortInfo(){
 		sockstat -4 | grep "$username" | awk '{print $3 " " $5 "_" $6}'
 	)
     choice=$(dialog --title "Port INFO(PID and Port)" \
-    --menu "" 10 40 10 $content \
+    --menu "Port INFO(PID and Port)" 10 40 10 "$content" \
     2>&1 > /dev/tty)
     result=$?
 
     if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
         UserPanel "$username"
     elif [ $result -eq 1 ] ; then
-        Main
+        UserPanel "$username"
     fi
 }
 
