@@ -189,6 +189,7 @@ ProcessState(){
 PSExport(){
 	username=$1
 	content=$2
+	PID=$3
 	exec 3>&1
     input=$(dialog --title "Export to file" --inputbox "Enter the path:" $height $width 2>&1 1>&3)
     result=$?
