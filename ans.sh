@@ -19,11 +19,47 @@ MainSelect(){
 	choice=$1
 	clear
     case $choice in
-        1) echo option1
+        1) PostAnnouncement
         ;;
         2) UserList
         ;;
     esac
+}
+
+PostAnnouncement(){
+	allUsers=`
+		cat /etc/passwd | grep ":" | grep -v "#" | grep -v "nologin" | \
+		awk -F":" '{print 1000+NR " " $1 " off"}'
+	`
+    selection=$(dialog --title "POST ANNOUNCEMENT" \
+    --checklist "Please choose who you want to post" 15 40 10 $allUsers \
+    2>&1 > /dev/tty)
+
+    selectedUsers=$(
+		for str in $selection
+		do
+			line=$(echo "$allUsers" | grep "$str")
+			if [ "$line" != "" ] ; then
+				echo $line | awk '{print $2}'
+			fi
+    	done
+    )
+    PostAnnouncement "$selectedUsers"
+}
+
+PostAnnouncement(){
+	users=$1
+	exec 3>&1
+    input=$(dialog --title "Post an announcement" --inputbox "Enter your messages:" 10 40 2>&1 1>&3)
+    result=$?
+    exec 3>&-
+	if [ $result -eq 0 ]; then
+		mesg y
+		for user in $users
+		do
+			echo "$input" | write "$user"
+		done
+	Main
 }
 
 UserList(){
@@ -303,14 +339,6 @@ GroupExport(){
 	elif [ $result -eq 1 ] ; then
 		GroupInfo "$username"
 	fi
-}
-
-PostAnnouncement(){
-    dialog --title "POST ANNOUNCEMENT" \
-    --checklist "Please choose who you want to post" 15 40 2 \
-    1 "user1" off \
-    2 "user2" on \
-    3 "user3" on
 }
 
 TypeMessage(){
