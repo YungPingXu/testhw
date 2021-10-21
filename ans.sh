@@ -1,8 +1,12 @@
 #!/bin/sh
 
+height=20
+width=60
+menuHeight=10
+
 Main(){
     selection=$(dialog --title "System Info Panel" \
-	--menu "Please select the command you want to use" 10 50 2 \
+	--menu "Please select the command you want to use" $height $width $menuHeight \
 	1 "POST ANNOUNCEMENT" \
 	2 "USER LIST" \
 	2>&1 > /dev/tty)
@@ -32,7 +36,7 @@ PostAnnouncement(){
 		awk -F":" '{print 1000+NR " " $1 " off"}'
 	`
     selection=$(dialog --title "POST ANNOUNCEMENT" \
-    --checklist "Please choose who you want to post" 15 40 10 $allUsers \
+    --checklist "Please choose who you want to post" $height $width $menuHeight $allUsers \
     2>&1 > /dev/tty)
 	result=$?
     selectedUsers=$(
@@ -54,7 +58,7 @@ PostAnnouncement(){
 SendMessages(){
 	users=$1
 	exec 3>&1
-    input=$(dialog --title "Post an announcement" --inputbox "Enter your messages:" 10 40 2>&1 1>&3)
+    input=$(dialog --title "Post an announcement" --inputbox "Enter your messages:" $height $width 2>&1 1>&3)
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
@@ -87,7 +91,7 @@ UserList(){
 		done
 	)
     choice=$(dialog --cancel-label "EXIT" --ok-label "SELECT" \
-    --menu "User Info Panel" 15 40 10 $para \
+    --menu "User Info Panel" $height $width $menuHeight $para \
     2>&1 > /dev/tty)
 	result=$?
 	username=$(echo "$allUsers" | grep "$choice" | awk -F"," '{print $2}')
@@ -112,7 +116,7 @@ UserPanel(){
 		option1="LOCK IT"
 	fi
     choice=$(dialog --cancel-label "EXIT" \
-    --menu "User $username" 15 40 10\
+    --menu "User $username" $height $width $menuHeight \
     1 "$option1" \
     2 "GROUP INFO" \
     3 "PORT INFO" \
@@ -151,7 +155,7 @@ PortInfo(){
 	username=$1
 	para=$(sockstat -4 | grep "$username" | awk '{print $3 " " $5 "_" $6}')
     choice=$(dialog --title "Port INFO(PID and Port)" \
-    --menu "" 10 40 10 $para \
+    --menu "" $height $width $menuHeight $para \
     2>&1 > /dev/tty)
     result=$?
 
@@ -173,7 +177,7 @@ ProcessState(){
 			}
 		}'
 	)
-    dialog --title "PROCESS STATE: $PID" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
+    dialog --title "PROCESS STATE: $PID" --yes-label "OK" --no-label "EXPORT" --yesno "$content" $height $width
     result=$?
 	if [ $result -eq 0 ]; then
 		PortInfo "$username"
@@ -187,7 +191,7 @@ PSExport(){
 	content=$2
 	PID=$3
 	exec 3>&1
-    input=$(dialog --title "Export to file" --inputbox "Enter the path:" 10 40 2>&1 1>&3)
+    input=$(dialog --title "Export to file" --inputbox "Enter the path:" $height $width 2>&1 1>&3)
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
@@ -206,7 +210,7 @@ LoginHistory(){
 		grep -oE '.*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}.*' | \
 		awk '{print $4 " " $5 " " $6 " " $7 " " $3}'
 	)
-    dialog --title "LOGIN HISTORY" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
+    dialog --title "LOGIN HISTORY" --yes-label "OK" --no-label "EXPORT" --yesno "$content" $height $width
     result=$?
 	if [ $result -eq 0 ]; then
 		UserPanel "$username"
@@ -219,7 +223,7 @@ LoginHistoryExport(){
 	username=$1
 	content=$2
 	exec 3>&1
-    input=$(dialog --title "Export to file" --inputbox "Enter the path:" 10 40 2>&1 1>&3)
+    input=$(dialog --title "Export to file" --inputbox "Enter the path:" $height $width 2>&1 1>&3)
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
@@ -256,7 +260,7 @@ SudoLog(){
 			fi
 		done
 	)
-    dialog --title "SUDO LOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 100
+    dialog --title "SUDO LOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" $height $width
     result=$?
 	if [ $result -eq 0 ]; then
 		UserPanel "$username"
@@ -269,7 +273,7 @@ SudoExport(){
 	username=$1
 	content=$2
 	exec 3>&1
-    input=$(dialog --title "Export to file" --inputbox "Enter the path:" 10 40 2>&1 1>&3)
+    input=$(dialog --title "Export to file" --inputbox "Enter the path:" $height $width 2>&1 1>&3)
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
@@ -283,7 +287,7 @@ SudoExport(){
 LockorUnlock(){
 	username=$1
 	lockoption=$2
-    dialog --title "$lockoption" --yesno "Are you sure you want to do this?" 15 40
+    dialog --title "$lockoption" --yesno "Are you sure you want to do this?" $height $width
     result=$?
 	if [ $result -eq 0 ]; then
 		if [ "$lockoption" = "LOCK IT" ] ; then
@@ -305,7 +309,7 @@ LockorUnlockSucceed(){
 	else
 		message="UNLOCK SUCCEED!"
 	fi
-    dialog --title "$lockoption" --msgbox "$message" 15 40
+    dialog --title "$lockoption" --msgbox "$message" $height $width
     UserPanel "$username"
 }
 
@@ -322,7 +326,7 @@ GroupInfo(){
 		}' |
 		awk -F"(" '{print $1 " " $2}'
 	`
-    dialog --title "GROUP" --yes-label "OK" --no-label "EXPORT" --yesno "$content" 15 40
+    dialog --title "GROUP" --yes-label "OK" --no-label "EXPORT" --yesno "$content" $height $width
 	result=$?
 	if [ $result -eq 0 ]; then
 		UserPanel "$username"
@@ -335,7 +339,7 @@ GroupExport(){
 	username=$1
 	content=$2
 	exec 3>&1
-    input=$(dialog --title "Export to file" --inputbox "Enter the path:" 10 40 2>&1 1>&3)
+    input=$(dialog --title "Export to file" --inputbox "Enter the path:" $height $width 2>&1 1>&3)
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
