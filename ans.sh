@@ -44,10 +44,10 @@ PostAnnouncement(){
 			fi
     	done
     )
-    PostAnnouncement "$selectedUsers"
+    SendMessages "$selectedUsers"
 }
 
-PostAnnouncement(){
+SendMessages(){
 	users=$1
 	exec 3>&1
     input=$(dialog --title "Post an announcement" --inputbox "Enter your messages:" 10 40 2>&1 1>&3)
@@ -340,10 +340,6 @@ GroupExport(){
 	elif [ $result -eq 1 ] ; then
 		GroupInfo "$username"
 	fi
-}
-
-TypeMessage(){
-    dialog --title "POST ANNOUNCEMENT" --inputbox "Enter your messages:" 10 40 
 }
 
 Main
