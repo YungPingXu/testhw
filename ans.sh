@@ -34,7 +34,7 @@ PostAnnouncement(){
     selection=$(dialog --title "POST ANNOUNCEMENT" \
     --checklist "Please choose who you want to post" 15 40 10 $allUsers \
     2>&1 > /dev/tty)
-
+	result=$?
     selectedUsers=$(
 		for str in $selection
 		do
@@ -44,7 +44,11 @@ PostAnnouncement(){
 			fi
     	done
     )
-    SendMessages "$selectedUsers"
+	if [ $result -eq 0 ]; then
+		SendMessages "$selectedUsers"
+	else
+		Main
+	fi 
 }
 
 SendMessages(){
