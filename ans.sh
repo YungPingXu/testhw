@@ -1,7 +1,7 @@
 #!/bin/sh
 
 height=20
-width=60
+width=50
 menuHeight=10
 
 Main(){
