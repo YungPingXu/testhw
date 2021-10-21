@@ -352,15 +352,17 @@ GroupExport(){
 		tmp=$(echo $input | cut -c1)
 		if [ $tmp = "~" ] ; then
 			replace=$(echo "$input" | sed "s/^.\(.*\)/\1/")
-			path=$(echo $HOME$replace)
+			home=$(grep "$username" /etc/passwd | awk -F":" '{print $(NF-1)}')
+			path=$(echo $home$replace)
 		else
 			path=$input
 		fi
-		echo $content > $path
+		echo "$content" > "$path"
 		GroupInfo "$username"
 	elif [ $result -eq 1 ] ; then
 		GroupInfo "$username"
 	fi
+	
 }
 
 Main
