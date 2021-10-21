@@ -189,13 +189,20 @@ ProcessState(){
 PSExport(){
 	username=$1
 	content=$2
-	PID=$3
 	exec 3>&1
     input=$(dialog --title "Export to file" --inputbox "Enter the path:" $height $width 2>&1 1>&3)
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		echo "$content" > $input
+		tmp=$(echo $input | cut -c1)
+		if [ $tmp = "~" ] ; then
+			replace=$(echo "$input" | sed "s/^.\(.*\)/\1/")
+			home=$(grep "$username" /etc/passwd | awk -F":" '{print $(NF-1)}')
+			path=$(echo $home$replace)
+		else
+			path=$input
+		fi
+		echo "$content" > "$path"
 		ProcessState "$username" "$PID"
 	elif [ $result -eq 1 ] ; then
 		ProcessState "$username" "$PID"
@@ -227,7 +234,15 @@ LoginHistoryExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		echo "$content" > $input
+		tmp=$(echo $input | cut -c1)
+		if [ $tmp = "~" ] ; then
+			replace=$(echo "$input" | sed "s/^.\(.*\)/\1/")
+			home=$(grep "$username" /etc/passwd | awk -F":" '{print $(NF-1)}')
+			path=$(echo $home$replace)
+		else
+			path=$input
+		fi
+		echo "$content" > "$path"
 		LoginHistory "$username"
 	elif [ $result -eq 1 ] ; then
 		LoginHistory "$username"
@@ -277,13 +292,15 @@ SudoExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		tmp=$(echo ${input:0:1})
+		tmp=$(echo $input | cut -c1)
 		if [ $tmp = "~" ] ; then
-			path=${HOME}${input:1}
+			replace=$(echo "$input" | sed "s/^.\(.*\)/\1/")
+			home=$(grep "$username" /etc/passwd | awk -F":" '{print $(NF-1)}')
+			path=$(echo $home$replace)
 		else
 			path=$input
 		fi
-		echo $content > $path
+		echo "$content" > "$path"
 		SudoLog "$username"
 	elif [ $result -eq 1 ] ; then
 		SudoLog "$username"
