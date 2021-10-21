@@ -59,6 +59,7 @@ PostAnnouncement(){
 		do
 			echo "$input" | write "$user"
 		done
+	fi
 	Main
 }
 
