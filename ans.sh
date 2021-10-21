@@ -277,7 +277,13 @@ SudoExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		echo $content > $input
+		tmp=$(echo ${input:0:1})
+		if [ $tmp = "~" ] ; then
+			path=${HOME}${input:1}
+		else
+			path=$input
+		fi
+		echo $content > $path
 		SudoLog "$username"
 	elif [ $result -eq 1 ] ; then
 		SudoLog "$username"
@@ -343,7 +349,14 @@ GroupExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		echo "$content" > $input
+		tmp=$(echo $input | cut -c1)
+		if [ $tmp = "~" ] ; then
+			replace=$(echo "$input" | sed "s/^.\(.*\)/\1/")
+			path=$(echo $HOME$replace)
+		else
+			path=$input
+		fi
+		echo $content > $path
 		GroupInfo "$username"
 	elif [ $result -eq 1 ] ; then
 		GroupInfo "$username"
