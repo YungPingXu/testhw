@@ -276,7 +276,7 @@ SudoLog(){
 			fi
 		done
 	)
-    dialog --title "SUDO LOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" $height $width
+    dialog --title "SUDO LOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" $height 80
     result=$?
 	if [ $result -eq 0 ]; then
 		UserPanel "$username"
@@ -367,14 +367,14 @@ GroupExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		tmp=$(echo $input | cut -c1)
-		if [ $tmp = "~" ] ; then
-			replace=$(echo "$input" | sed "s/^.\(.*\)/\1/")
-			home=$(grep "$username" /etc/passwd | awk -F":" '{print $(NF-1)}')
-			path=$(echo $home$replace)
-		else
-			path=$input
-		fi
+		#tmp=$(echo $input | cut -c1)
+		#if [ $tmp = "~" ] ; then
+		#	replace=$(echo "$input" | sed "s/^.\(.*\)/\1/")
+		#	home=$(grep "$username" /etc/passwd | awk -F":" '{print $(NF-1)}')
+		#	path=$(echo $home$replace)
+		#else
+		#	path=$input
+		#fi
 		echo "$content" > "$path"
 		GroupInfo "$username"
 	elif [ $result -eq 1 ] ; then
