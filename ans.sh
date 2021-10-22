@@ -1,8 +1,22 @@
 #!/bin/sh
 
+trap "detectCtrlC" 2
+
 height=20
 width=50
 menuHeight=10
+
+detectCtrlC(){
+	clear
+	echo "Ctrl + C pressed."
+	exit 2
+}
+
+Exit(){
+    clear
+    echo "Exit."
+    exit
+}
 
 Main(){
     selection=$(dialog --title "System Info Panel" \
@@ -100,11 +114,6 @@ UserList(){
     elif [ $result -eq 1 ] ; then
         Main
     fi
-}
-
-Exit(){
-    clear
-    exit
 }
 
 UserPanel(){
