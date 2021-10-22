@@ -272,7 +272,7 @@ SudoLog(){
 			dateTime=$(date -j -f "%b %d %T" "$myDate" "+%s")
 			timeDiff=`expr $currentTime - $dateTime`
 			dayDiff=`expr $timeDiff / 86400`
-			if [ $dayDiff -lt 15 ] ; then
+			if [ $dayDiff -lt 30 ] ; then
 				echo $line
 			fi
 		done
