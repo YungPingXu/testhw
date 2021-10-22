@@ -12,6 +12,12 @@ detectCtrlC(){
 	exit 2
 }
 
+detectESC(){
+	clear
+	echo >&2 "Esc pressed."
+	exit
+}
+
 Exit(){
     clear
     echo "Exit."
@@ -30,6 +36,8 @@ Main(){
         MainSelect $selection
     elif [ $result -eq 1 ] ; then
         Exit
+    elif [ $result -eq 255 ] ; then
+		detectESC
     fi
 }
 
