@@ -195,15 +195,7 @@ PSExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		tmp=$(echo $input | cut -c1)
-		if [ $tmp = "~" ] ; then
-			replace=$(echo "$input" | sed "s/^.\(.*\)/\1/")
-			home=$(grep "$username" /etc/passwd | awk -F":" '{print $(NF-1)}')
-			path=$(echo $home$replace)
-		else
-			path=$input
-		fi
-		echo "$content" > "$path"
+		echo "$content" > "$input"
 		ProcessState "$username" "$PID"
 	elif [ $result -eq 1 ] ; then
 		ProcessState "$username" "$PID"
@@ -235,15 +227,7 @@ LoginHistoryExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		tmp=$(echo $input | cut -c1)
-		if [ $tmp = "~" ] ; then
-			replace=$(echo "$input" | sed "s/^.\(.*\)/\1/")
-			home=$(grep "$username" /etc/passwd | awk -F":" '{print $(NF-1)}')
-			path=$(echo $home$replace)
-		else
-			path=$input
-		fi
-		echo "$content" > "$path"
+		echo "$content" > "$input"
 		LoginHistory "$username"
 	elif [ $result -eq 1 ] ; then
 		LoginHistory "$username"
@@ -293,15 +277,7 @@ SudoExport(){
     result=$?
     exec 3>&-
 	if [ $result -eq 0 ]; then
-		tmp=$(echo $input | cut -c1)
-		if [ $tmp = "~" ] ; then
-			replace=$(echo "$input" | sed "s/^.\(.*\)/\1/")
-			home=$(grep "$username" /etc/passwd | awk -F":" '{print $(NF-1)}')
-			path=$(echo $home$replace)
-		else
-			path=$input
-		fi
-		echo "$content" > "$path"
+		echo "$content" > "$input"
 		SudoLog "$username"
 	elif [ $result -eq 1 ] ; then
 		SudoLog "$username"
@@ -375,7 +351,7 @@ GroupExport(){
 		#else
 		#	path=$input
 		#fi
-		echo "$content" > "$path"
+		echo "$content" > "$input"
 		GroupInfo "$username"
 	elif [ $result -eq 1 ] ; then
 		GroupInfo "$username"
