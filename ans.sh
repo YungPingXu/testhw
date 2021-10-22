@@ -72,7 +72,7 @@ PostAnnouncement(){
     )
 	if [ $result -eq 0 ]; then
 		SendMessages "$selectedUsers"
-	else
+	elif [ $result -eq 1 ] || [ $result -eq 255 ] ; then
 		Main
 	fi 
 }
@@ -119,7 +119,7 @@ UserList(){
 	username=$(echo "$allUsers" | grep "$choice" | awk -F"," '{print $2}')
     if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
         UserPanel "$username"
-    elif [ $result -eq 1 ] ; then
+    elif [ $result -eq 1 ] || [ $result -eq 255 ] ; then
         Main
     fi
 }
@@ -144,7 +144,7 @@ UserPanel(){
     result=$?
     if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
         UserPanelSelect $choice "$username" "$option1"
-    elif [ $result -eq 1 ] ; then
+    elif [ $result -eq 1 ] || [ $result -eq 255 ] ; then
         UserList
     fi
 }
@@ -178,7 +178,7 @@ PortInfo(){
 
     if [ $result -eq 0 ]; then # 0 means OK, 1 means cancel
         ProcessState "$username" "$choice"
-    elif [ $result -eq 1 ] ; then
+    elif [ $result -eq 1 ] || [ $result -eq 255 ] ; then
         UserPanel "$username"
     fi
 }
@@ -196,7 +196,7 @@ ProcessState(){
 	)
     dialog --title "PROCESS STATE: $PID" --yes-label "OK" --no-label "EXPORT" --yesno "$content" $height $width
     result=$?
-	if [ $result -eq 0 ]; then
+	if [ $result -eq 0 ] || [ $result -eq 255 ] ; then
 		PortInfo "$username"
 	elif [ $result -eq 1 ] ; then
 		PSExport "$username" "$content" "$PID"
@@ -214,7 +214,7 @@ PSExport(){
 	if [ $result -eq 0 ]; then
 		echo "$content" > "$input"
 		ProcessState "$username" "$PID"
-	elif [ $result -eq 1 ] ; then
+	elif [ $result -eq 1 ] || [ $result -eq 255 ] ; then
 		ProcessState "$username" "$PID"
 	fi
 }
@@ -229,7 +229,7 @@ LoginHistory(){
 	)
     dialog --title "LOGIN HISTORY" --yes-label "OK" --no-label "EXPORT" --yesno "$content" $height $width
     result=$?
-	if [ $result -eq 0 ]; then
+	if [ $result -eq 0 ] || [ $result -eq 255 ] ; then
 		UserPanel "$username"
 	elif [ $result -eq 1 ] ; then
 		LoginHistoryExport "$username" "$content"
@@ -246,7 +246,7 @@ LoginHistoryExport(){
 	if [ $result -eq 0 ]; then
 		echo "$content" > "$input"
 		LoginHistory "$username"
-	elif [ $result -eq 1 ] ; then
+	elif [ $result -eq 1 ] || [ $result -eq 255 ] ; then
 		LoginHistory "$username"
 	fi
 }
@@ -279,7 +279,7 @@ SudoLog(){
 	)
     dialog --title "SUDO LOG" --yes-label "OK" --no-label "EXPORT" --yesno "$content" $height 80
     result=$?
-	if [ $result -eq 0 ]; then
+	if [ $result -eq 0 ] || [ $result -eq 255 ] ; then
 		UserPanel "$username"
 	elif [ $result -eq 1 ] ; then
 		SudoExport "$username" "$content"
@@ -296,7 +296,7 @@ SudoExport(){
 	if [ $result -eq 0 ]; then
 		echo "$content" > "$input"
 		SudoLog "$username"
-	elif [ $result -eq 1 ] ; then
+	elif [ $result -eq 1 ] || [ $result -eq 255 ] ; then
 		SudoLog "$username"
 	fi
 }
@@ -313,7 +313,7 @@ LockorUnlock(){
 			pw unlock "$username"
 		fi
 		LockorUnlockSucceed "$username" "$lockoption"
-	elif [ $result -eq 1 ] ; then
+	elif [ $result -eq 1 ] || [ $result -eq 255 ] ; then
 		UserPanel "$username" "$lockoption"
 	fi
 }
@@ -345,7 +345,7 @@ GroupInfo(){
 	`
     dialog --title "GROUP" --yes-label "OK" --no-label "EXPORT" --yesno "$content" $height $width
 	result=$?
-	if [ $result -eq 0 ]; then
+	if [ $result -eq 0 ] || [ $result -eq 255 ] ; then
 		UserPanel "$username"
 	elif [ $result -eq 1 ] ; then
 		GroupExport "$username" "$content"
@@ -370,7 +370,7 @@ GroupExport(){
 		#fi
 		echo "$content" > "$input"
 		GroupInfo "$username"
-	elif [ $result -eq 1 ] ; then
+	elif [ $result -eq 1 ] || [ $result -eq 255 ] ; then
 		GroupInfo "$username"
 	fi
 	
